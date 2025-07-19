@@ -1,0 +1,112 @@
+# I would like to probe the RLT work
+# so we can RLVR'ing some Wafer models
+# + paper- ...
+# + repo- https://github.com/SakanaAI/RLT
+# + ckg's fork- https://github.com/ckgresla/RLT
+
+# CMD to spinup (in root of RLT repo dir):
+# `sky exec  --cluster gcp cfgs/skypilot/gcp.yaml  --env-file ~/.globalenv`
+
+name: gcp
+
+experimental:
+  config_overrides:
+    gcp:
+      managed_instance_group:
+        run_duration: 604800
+        provision_timeout: 900
+
+
+resources:
+  cloud: gcp
+  accelerators: H100:8
+  disk_size: 4096
+  disk_tier: best
+num_nodes: 1
+
+
+secrets:
+  HF_TOKEN: null
+  WANDB_API_KEY: null
+  HF_TOKEN: null
+  OPENAI_API_KEY: null
+
+
+workdir: .
+
+
+setup: |
+  # get some sunlight (`uv`)
+  # for uv install, see- https://docs.astral.sh/uv/getting-started/installation/
+  if ! command -v uv &> /dev/null; then
+      echo "uv not found on PATH, installing..."
+      curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      # Source the profile to make uv available in the current shell session
+      if [[ -f ~/.bashrc ]]; then
+          source ~/.bashrc
+      elif [[ -f ~/.bash_profile ]]; then
+          source ~/.bash_profile
+      elif [[ -f ~/.zshrc ]]; then
+          source ~/.zshrc
+      fi
+
+      # Verify installation
+      if ! command -v uv &> /dev/null; then
+          echo "Failed to install uv. Please install manually following the documentation."
+          exit 1
+      else
+          echo "uv installed successfully!"
+      fi
+  fi
+
+  # use our branch in the forked repo
+  git checkout wafer
+
+  # node created by skypilot should already have conda
+  conda create -n "rlt" python="3.11.5" -y
+  bash setup.sh
+
+  # download dataset & base model weights to cache
+  DATASETS=(
+    "bespokelabs/Bespoke-Stratos-17k"
+  )
+  for dataset_name_to_download in "${DATASETS[@]}"; do
+      echo "downloading dataset: ${dataset_name_to_download} to hf cache"
+      python -c "import os; from datasets import load_dataset; os.environ['dataset_name_to_download'] = '${dataset_name_to_download}'; load_dataset(os.environ['dataset_name_to_download'], num_proc=max(os.cpu_count() or 1, 1)); print(f'Downloaded dataset: {os.environ[\"dataset_name_to_download\"]}')"
+      echo "completed downloading dataset: ${dataset_name_to_download}!"
+      echo "---"
+  done
+
+  MODELS_TO_DOWNLOAD=(
+    "Qwen/Qwen2.5-3B-Instruct"
+    "Qwen/Qwen2.5-7B-Instruct"
+    "SakanaAI/RLT-7B"
+    "SakanaAI/RLT-32B"
+  )
+  for model_name in "${MODELS_TO_DOWNLOAD[@]}"; do
+    echo "downloading model: ${model_name} to hf cache"
+    HF_HUB_ENABLE_HF_TRANSFER=1  huggingface-cli  download "${model_name}"
+    echo "completed downloading model: ${model_name}!"
+  done
+
+  echo -e "\n\nSETUP SUCCESSFUL -- HOUSTON I REPEAT SETUP IS SUCCESSFUL\n\n\n"
+
+
+file_mounts:
+  # ssh and git key (from local to remote)
+  ~/.ssh/id_rsa: ~/.ssh/sky-key
+  ~/.ssh/id_ed25519: ~/.ssh/id_ed25519
+  # team bucket mounted to filesystem
+  /sharedfs:
+    source: gs://wafer-research
+    mode: MOUNT
+    store: gcs
+
+
+run: |
+  ## init + hostfile
+  conda activate rlt
+  echo -e "\n\nThe contents of the current environment, hopefully they jive with RLT..."
+  uv pip show torch vllm flash-attn flashinfer-python transformers
+  echo "@ckg -- we are live houston"
