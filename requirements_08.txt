@@ -12,4 +12,4 @@ matplotlib
 wandb
 tensorboard==2.18.0
 fire==0.7.0
-skypilot==0.10.0
+skypilot[gcp,lambda]==0.10.0
