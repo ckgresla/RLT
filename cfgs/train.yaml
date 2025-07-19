@@ -17,7 +17,7 @@ call_post_training:
 logging_strategy: steps
 logging_steps: 5
 report_to: "wandb"
-wandb_project: rl4lm
+wandb_project: ckg_rlt_probe
 wandb_group_name: ${data_log_name}/${model_log_name}
 wandb_run_name: ${trainer_log_name}
 

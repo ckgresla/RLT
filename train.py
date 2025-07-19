@@ -1,3 +1,5 @@
+# ruff: noqa: F401
+
 import logging
 import os
 import random
@@ -27,7 +29,7 @@ def wandb_init(cfg, run_name: str, group_name: str, log_dir: str):
     config_dict["wandb_run_name"] = run_name
     config_dict["wandb_group_name"] = group_name
 
-    wandb_run = wandb.init(
+    _ = wandb.init(
         project=cfg.wandb_project,
         group=group_name[:127],
         name=run_name[:127],
@@ -89,7 +91,7 @@ def main(cfg: DictConfig):
             using_wandb = using_wandb or (v == 'wandb')
 
     if using_wandb and is_main_process:
-        wandb = wandb_init(
+        _ = wandb_init(
             cfg=cfg,
             group_name=cfg.wandb_group_name,
             run_name=cfg.wandb_run_name,
@@ -106,7 +108,7 @@ def main(cfg: DictConfig):
         **datasets,
     )
 
-    print('Model initialized!!!')
+    logger.info('Model initialized!!!')
 
     last_checkpoint = get_checkpoint(cfg.output_dir)
     if not last_checkpoint and cfg.resume_from is not None:

@@ -1,10 +1,14 @@
 #!/bin/bash
+# sample cmds
+# 1- sft base model to become a teacher (i.e: "grad school") --> on the tinybox
+# ./launch.sh 6 cfgs/run_cfg/teacher_sft.yaml  output_dir=/raid/fun/rlt/sft_teacher
 
 offload_found=false
 zero1_found=false
 args=()
 for arg in "$@"; do
   if [ "$arg" = "offload" ]; then
+    echo "gonna do some offloading..."
     offload_found=true
   elif [ "$arg" = "zero1" ]; then
     zero1_found=true
@@ -20,6 +24,7 @@ elif [ "$zero1_found" = true ]; then
 else
   config="accelerate_configs/deepspeed_zero3.yaml"
 fi
+echo "accelerate config: ${config}"
 
 nproc=${args[0]}
 arg2=${args[1]:-"default"}

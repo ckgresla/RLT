@@ -64,7 +64,7 @@ save_completions_probability: 0.1
 lr_scheduler_type: "constant"
 lr_scheduler_kwargs: ~
 
-wandb_project: rl4lm_teacher
+wandb_project: ckg_rlt_probe
 
 log_ctx_name: gr${num_generations}_${max_prompt_length}ctx_${max_completion_length}gen
 
