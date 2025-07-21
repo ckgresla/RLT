@@ -10,6 +10,16 @@ from omegaconf import DictConfig, OmegaConf
 from datetime import datetime
 from transformers.trainer_utils import get_last_checkpoint
 
+
+# NOTE@CKG: without this "whitelisting", resuming sft training from
+# a checkpoint is completely broken
+from deepspeed.runtime.zero.config import ZeroStageEnum
+from deepspeed.runtime.fp16.loss_scaler import LossScaler
+torch.serialization.add_safe_globals([
+    ZeroStageEnum,
+    LossScaler,
+])
+
 os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "1"
 
 logging.basicConfig(level=logging.INFO)

@@ -59,6 +59,13 @@ setup: |
           echo "uv installed successfully!"
       fi
   fi
+  
+  # bring your aliases brah
+  cd ~/
+  wget https://raw.githubusercontent.com/ckgresla/configs/refs/heads/main/omz/.zsh_aliases
+  cp .zsh_aliases .bash_aliases
+  echo "source ~/.bash_aliases" >> ~/.bashrc
+  cd -
 
   # use our branch in the forked repo
   git checkout wafer

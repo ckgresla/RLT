@@ -2,6 +2,8 @@
 # sample cmds
 # 1- sft base model to become a teacher (i.e: "grad school") --> on the tinybox
 # ./launch.sh 6 cfgs/run_cfg/teacher_sft.yaml  output_dir=/raid/fun/rlt/sft_teacher
+# 2- sft base model for teacher --> on GCP
+# ./launch.sh 8 cfgs/run_cfg/teacher_sft.yaml  output_dir=/home/gcpuser/sky_workdir/models/sft_teacher
 
 offload_found=false
 zero1_found=false
