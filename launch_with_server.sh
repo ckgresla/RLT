@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# 1- do the RLT process, on GCP node
+# ./launch_with_server.sh 4 4 cfgs/run_cfg/teacher_rlt.yaml  model_name_or_path=/home/gcpuser/sky_workdir/models/sft_teacher/checkpoint-10440  results_dir=/home/gcpuser/sky_workdir/models/rlt_model
+
+
 # gpus for vllm server
 num_gpus=$1
 # gpus for backprop
